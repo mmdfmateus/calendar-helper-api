@@ -1,0 +1,35 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: mmdfmateus
+# "app" enables Serverless Framework Dashboard features and sharing them with other Services.
+app: calendar-helper
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: calendar-helper-api
+
+provider:
+  name: aws
+  region: sa-east-1
+  runtime: nodejs22.x
+  architecture: arm64
+
+build:
+  esbuild:
+    bundle: true
+    sourcemap: false
+
+package:
+  individually: true
+
+functions:
+  signIn:
+    handler: src/signIn.handler
+    events:
+      - httpApi:
+          path: /signin
+          method: POST
+
+  signUp:
+    handler: src/signUp.handler
+    events:
+      - httpApi:
+          path: /signup
+          method: POST
