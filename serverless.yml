@@ -10,6 +10,11 @@ provider:
   region: sa-east-1
   runtime: nodejs22.x
   architecture: arm64
+  environment:
+    DATABASE_URL: ${env:DATABASE_URL}
+
+plugins:
+  - serverless-offline
 
 build:
   esbuild:
@@ -21,14 +26,14 @@ package:
 
 functions:
   signIn:
-    handler: src/signIn.handler
+    handler: src/functions/signIn.handler
     events:
       - httpApi:
           path: /signin
           method: POST
 
   signUp:
-    handler: src/signUp.handler
+    handler: src/functions/signUp.handler
     events:
       - httpApi:
           path: /signup
