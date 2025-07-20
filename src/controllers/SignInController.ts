@@ -5,6 +5,7 @@ import { HttpRequest, HttpResponse } from "../types/HttpTypes";
 import { badRequest, ok, unauthorized } from "../utils/http";
 import { z } from "zod";
 import { comparePassword } from "../utils/crypt";
+import { generateToken } from "../utils/token";
 
 const schema = z.object({
   email: z.email(),
@@ -42,9 +43,12 @@ export class SignInController {
       });
     }
 
+    const accessToken = generateToken(user.id);
+
     return ok({
       data: {
         userId: user.id,
+        accessToken,
       },
     });
   }

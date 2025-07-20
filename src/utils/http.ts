@@ -27,3 +27,10 @@ export const unauthorized = (body?: Record<string, any>): HttpResponse => {
     body,
   };
 };
+
+export const notFound = (body?: Record<string, any>): HttpResponse => {
+  return {
+    statusCode: 404,
+    body,
+  };
+};

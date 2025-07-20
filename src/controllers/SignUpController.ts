@@ -5,11 +5,13 @@ import { HttpRequest, HttpResponse } from "../types/HttpTypes";
 import { badRequest, created } from "../utils/http";
 import { z } from "zod";
 import { hashPassword } from "../utils/crypt";
+import { generateToken } from "../utils/token";
+import { calculateGoals } from "../lib/goalCalculator";
 
 const schema = z.object({
   goal: z.enum(["lose", "maintain", "gain"]),
   gender: z.enum(["male", "female"]),
-  birthDate: z.iso.date(),
+  birthDate: z.coerce.date(),
   height: z.number(),
   weight: z.number(),
   activityLevel: z.number().min(1).max(5),
@@ -39,25 +41,30 @@ export class SignUpController {
       return badRequest({ errors: [{ message: "User already exists" }] });
     }
 
-    const hashedPassword = await hashPassword(data.account.password);
+    const goals = calculateGoals({
+      ...data,
+      birthDate: data.birthDate,
+    });
 
+    const hashedPassword = await hashPassword(data.account.password);
     const [newUser] = await db
       .insert(usersTable)
       .values({
         ...data,
         ...data.account,
+        ...goals,
         password: hashedPassword,
-        calories: 0,
-        proteins: 0,
-        carbohydrates: 0,
-        fats: 0,
+        birthDate: data.birthDate.toISOString(),
       })
       .returning({
         id: usersTable.id,
       });
 
+    const accessToken = generateToken(newUser.id);
+
     return created({
       userId: newUser.id,
+      accessToken,
     });
   }
 }
